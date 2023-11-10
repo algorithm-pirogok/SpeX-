@@ -1,0 +1,21 @@
+train:
+  batch_size: 1
+  num_workers: 0
+  datasets:
+    - type: MixedLibrispeechDataset
+      args:
+        part: test-clean
+        max_audio_length: 20.0
+        max_text_length: 200
+        limit: 10
+
+val:
+  batch_size: 1
+  num_workers: 0
+  datasets:
+    - type: MixedLibrispeechDataset
+      args:
+        part: test-clean
+        max_audio_length: 20.0
+        max_text_length: 200
+        limit: 10

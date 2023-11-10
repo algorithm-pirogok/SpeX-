@@ -1,0 +1,14 @@
+- type: SISDRMetric
+  args:
+    name: SI-SDR Metric
+    train: true
+    zero_mean: false
+
+- type: PESQMetric
+  args:
+    name: "PESQ Metric"
+    train: false
+    fs: 16000
+    mode: 'wb'
+    n_processes: 8
+

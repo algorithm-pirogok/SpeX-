@@ -1,0 +1,181 @@
+{
+  "name": "other_config",
+  "n_gpu": 1,
+  "preprocessing": {
+    "sr": 16000,
+    "spectrogram": {
+      "type": "MelSpectrogram",
+      "args": {
+      }
+    },
+    "log_spec": true
+  },
+  "augmentations": {
+    "wave": [
+      {
+        "type": "Gain",
+        "args": {
+          "p": 0.25
+        }
+      }
+    ],
+    "spectrogram": [
+      {
+        "type": "Masking",
+        "args": {
+          "p": 0.2
+        }
+      }
+    ]
+  },
+  "arch": {
+    "type": "DeepSpeech2",
+    "args": {
+      "n_feats": 128,
+      "fc_hidden": 512,
+      "params_for_rnn": {
+        "count": 6,
+        "hidden_size": 512,
+        "rnn_model": "LSTM",
+        "dropout": 0.1,
+        "bidirectional": true,
+        "batch_norm": true
+      },
+      "params_for_convolutions": {
+        "in_channels": 1,
+        "batch_norm": true,
+        "convolutions": [
+          {
+          "out_channels": 32,
+          "kernel_size": [41, 11],
+          "stride": [2, 2],
+          "dilation": [1, 1],
+          "padding": [20, 5]
+        },
+          {
+          "out_channels": 32,
+          "kernel_size": [21, 11],
+          "stride": [2, 1],
+          "dilation": [1, 1],
+          "padding": [10, 5]
+        },
+          {
+          "out_channels": 1,
+          "kernel_size": [3, 5],
+          "stride": [1, 1],
+          "dilation": [1, 1],
+          "padding": [1, 2]
+        }
+
+        ]
+      }
+    }
+  },
+  "data": {
+    "train": {
+      "batch_size": 32,
+      "num_workers": 8,
+      "datasets": [
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "train-clean-100",
+            "max_audio_length": 17.6,
+            "max_text_length": 280
+          },
+          "module": "hw_asr.datasets"
+        },
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "train-other-500",
+            "max_audio_length": 17.6,
+            "max_text_length": 280
+          },
+          "module": "hw_asr.datasets"
+        }
+      ]
+    },
+    "val": {
+      "batch_size": 32,
+      "num_workers": 8,
+      "datasets": [
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "dev-other"
+          },
+          "module": "hw_asr.datasets"
+        }
+      ]
+    },
+    "test-other": {
+      "batch_size": 32,
+      "num_workers": 8,
+      "datasets": [
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "test-other"
+          }
+        }
+      ]
+    },
+    "test-clean": {
+      "batch_size": 32,
+      "num_workers": 8,
+      "datasets": [
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "test-clean"
+          }
+        }
+      ]
+    }
+  },
+  "optimizer": {
+    "type": "Adagrad",
+    "args": {
+      "lr": 1e-4
+    }
+  },
+  "loss": {
+    "type": "CTCLoss",
+    "args": {}
+  },
+  "metrics": [
+    {
+      "type": "ArgmaxWERMetric",
+      "args": {
+        "name": "WER (argmax)"
+      }
+    },
+    {
+      "type": "ArgmaxCERMetric",
+      "args": {
+        "name": "CER (argmax)"
+      }
+    }
+  ],
+  "lr_scheduler": {
+    "type": "StepLR",
+    "args": {
+      "step_size": 600,
+      "gamma": 0.99
+    }
+  },
+  "trainer": {
+    "epochs": 160,
+    "save_dir": "saved/",
+    "save_period": 5,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 60,
+    "visualize": "wandb",
+    "wandb_project": "librispeech",
+    "wandb_name": "Deepspeech2 GRU 100+500",
+    "len_epoch": 400,
+    "grad_norm_clip": 10
+  }
+}

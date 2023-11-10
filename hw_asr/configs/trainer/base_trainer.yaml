@@ -1,0 +1,12 @@
+epochs: 50
+save_dir: saved/
+save_period: 5
+verbosity: 2
+monitor: min val_loss
+early_stop: 100
+visualize: wandb
+wandb_project: asr_homework
+wandb_name: baseline_model
+wandb_entity: wandb_pirogok
+len_epoch: 100
+grad_norm_clip: 10
