@@ -119,7 +119,7 @@ class Trainer(BaseTrainer):
                     "learning rate", self.lr_scheduler.get_last_lr()[0]
                 )
                 # self._log_predictions(is_validation=False, **batch)
-                self._log_audio(batch['mixed'][0], batch['short'][0], batch['target'][0], 16000)
+                self._log_audio(batch['mixed'][0], batch['short'][0], batch['long'][0], batch['target'][0], 16000)
                 self._log_scalars(self.train_metrics)
                 # we don't want to reset train metrics at the start of every epoch
                 # because we are interested in recent train metrics
@@ -242,11 +242,12 @@ class Trainer(BaseTrainer):
         image = PIL.Image.open(plot_spectrogram_to_buf(spectrogram))
         self.writer.add_image("spectrogram", ToTensor()(image))
 
-    def _log_audio(self, mixed, short, target, sample_rate):
+    def _log_audio(self, mixed, short, long, target, sample_rate):
         if self.writer is None:
             return
         self.writer.add_audio("mixed", mixed, sample_rate)
-        self.writer.add_audio("prediction", short, sample_rate)
+        self.writer.add_audio("short", short, sample_rate)
+        self.writer.add_audio("long", long, sample_rate)
         self.writer.add_audio("target", target, sample_rate)
 
     @torch.no_grad()

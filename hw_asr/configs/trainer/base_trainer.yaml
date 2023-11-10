@@ -1,4 +1,4 @@
-epochs: 50
+epochs: 100
 save_dir: saved/
 save_period: 5
 verbosity: 2
@@ -8,5 +8,5 @@ visualize: wandb
 wandb_project: ss_homework
 wandb_name: paper_model
 wandb_entity: wandb_pirogok
-len_epoch: 2500
+len_epoch: 500
 grad_norm_clip: 10
