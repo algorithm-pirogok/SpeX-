@@ -38,5 +38,5 @@ class FinalLoss(nn.Module):
 
     def forward(self, short_pred, middle_pred, long_pred, target, log_probs, speaker_id):
         sisdr = self.sisdr(short_pred, middle_pred, long_pred, target)
-        return sisdr + self.gamma * self.celoss(log_probs,
+        return sisdr + self.gamma * self.celoss(log_probs.to('cpu'),
                                                 torch.Tensor(speaker_id).type(torch.LongTensor).detach())
