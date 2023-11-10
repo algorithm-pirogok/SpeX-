@@ -293,8 +293,9 @@ def load_librispeech_dataset(dataset_name: str, nspeakers: int = 150, nfiles: in
             base_loader._load_part(part=dataset_name)
         if update or not os.path.exists(ROOT_PATH / f"data/datasets/merge_librispeech/{dataset_name}"):
             is_test = 'test' in dataset_name
+            snr_levels = [-3, 0, 3] if not is_test else [0]
             create_dataset(dataset_name, nspeakers=nspeakers, nfiles=nfiles, test=is_test, num_workers=10,
-                           snr_levels=[-3, 0, 3])
+                           snr_levels=snr_levels)
 
 
 if __name__ == "__main__":
