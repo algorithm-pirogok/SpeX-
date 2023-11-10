@@ -1,7 +1,7 @@
 type: OneCycleLR
 args:
   steps_per_epoch: 100
-  epochs: 250
+  epochs: 100
   anneal_strategy: cos
-  max_lr: 1e-2
-  pct_start: 0.2
+  max_lr: 1e-3
+  pct_start: 0.005
