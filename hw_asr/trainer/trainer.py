@@ -162,6 +162,7 @@ class Trainer(BaseTrainer):
         metrics.update("loss", batch["loss"].item())
         metric_iter = self._metrics_train if is_train else self._metrics_test
         for met in metric_iter:
+            print("FOR METRIC:", met.name)
             metrics.update(met.name, met(**batch))
         return batch
 
