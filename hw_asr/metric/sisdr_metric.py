@@ -9,7 +9,9 @@ class SISDRMetric(BaseMetric):
         super().__init__(*args, **kwargs)
 
     def __call__(self, **batch):
-        predictions = batch["short"].to("cpu").detach()
-        target = batch["middle"].to("cpu").detach()
-        print("I HAVE SI_SDR:", self.si_sdr(predictions, target))
-        return self.si_sdr(predictions, target)
+        short = batch["short"].to("cpu").detach()
+        middle = batch["middle"].to("cpu").detach()
+        target = batch["target"].to("cpu").detach()
+        print("SHORT/MIDDLE SI_SDR:", self.si_sdr(short, middle))
+        print("SHORT/target SI_SDR:", self.si_sdr(short, target))
+        return self.si_sdr(short, target)
