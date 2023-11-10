@@ -18,7 +18,8 @@ class SI_SDR(nn.Module):
         alpha = (target_batch * est_batch).sum(dim=1) / torch.norm(target_batch, dim=1) ** 2
         scale_target = alpha[:, None] * target_batch
         return 20 * torch.log10(
-            torch.norm(scale_target, dim=1) / (torch.norm(scale_target - est_batch, dim=1) + self.eps) + self.eps)
+            torch.sum(torch.norm(scale_target, dim=1) / (torch.norm(scale_target - est_batch, dim=1) + self.eps)
+                      + self.eps))
 
     def forward(self, short_pred, middle_pred, long_pred, target):
         short = self._compute_sisdr(short_pred, target)
