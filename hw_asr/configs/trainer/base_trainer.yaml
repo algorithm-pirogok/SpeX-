@@ -1,4 +1,4 @@
-epochs: 250
+epochs: 50
 save_dir: saved/
 save_period: 5
 verbosity: 2
