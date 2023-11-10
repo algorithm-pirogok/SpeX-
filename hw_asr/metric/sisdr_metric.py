@@ -9,6 +9,6 @@ class SISDRMetric(BaseMetric):
         super().__init__(*args, **kwargs)
 
     def __call__(self, **batch):
-        predictions = batch["short"]
-        target = batch["target"]
+        predictions = batch["short"].to("cpu")
+        target = batch["target"].to("cpu")
         return self.si_sdr(predictions, target)

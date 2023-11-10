@@ -40,9 +40,6 @@ class FinalLoss(nn.Module):
         sisdr = self.sisdr(short_pred, middle_pred, long_pred, target)
         ce_loss = self.celoss(log_probs, torch.Tensor(speaker_id).type(torch.LongTensor).to("cuda")).detach()
         loss = sisdr + self.gamma * ce_loss
-        print("sisdr", sisdr)
-        print("ce", ce_loss)
-        print("LOSS", loss)
         return loss
 
 
