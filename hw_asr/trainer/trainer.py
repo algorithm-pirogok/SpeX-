@@ -186,7 +186,12 @@ class Trainer(BaseTrainer):
                         metrics=self.evaluation_metrics,
                 )
             self.writer.set_step(epoch * self.len_epoch, part)
-            self._log_audio(batch['mixed'][0], batch['short'][0], batch['long'][0], batch['target'][0], 16000)
+            self._log_audio(batch['mixed'][0],
+                            batch['short'][0],
+                            batch['long'][0],
+                            batch['target'][0],
+                            batch['ref'][0],
+                            16000)
             self._log_scalars(self.evaluation_metrics)
             # self._log_predictions(is_validation=True, **batch)
             # self._log_spectrogram(batch["spectrogram"])
