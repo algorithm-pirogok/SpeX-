@@ -15,8 +15,8 @@ class SI_SDR(nn.Module):
         self.eps = eps
 
     def _compute_sisdr(self, est_batch, target_batch):
-        alpha = (target_batch * est_batch).sum(dim=1) / torch.norm(target_batch, dim=1) ** 2
-        scale_target = alpha[:, None] * target_batch
+        alpha = (target_batch * est_batch).sum(dim=-1) / torch.norm(target_batch, dim=1) ** 2
+        scale_target = alpha * target_batch
         return 20 * torch.log10(
             torch.sum(torch.norm(scale_target, dim=1) / (torch.norm(scale_target - est_batch, dim=1) + self.eps)
                       + self.eps))
@@ -25,7 +25,7 @@ class SI_SDR(nn.Module):
         short = self._compute_sisdr(short_pred, target)
         middle = self._compute_sisdr(middle_pred, target)
         long = self._compute_sisdr(long_pred, target)
-        return self.short_coeff * short + self.middle_coeff * middle + self.long_coeff * long
+        return -(self.short_coeff * short + self.middle_coeff * middle + self.long_coeff * long) / short_pred.shape[0]
 
 
 class FinalLoss(nn.Module):
