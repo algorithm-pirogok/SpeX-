@@ -26,7 +26,7 @@ FOLDERS = (
 
 class MixedLibrispeechDataset(BaseDataset):
     def __init__(self, part, data_dir=None, *args, **kwargs):
-        assert part in FOLDERS or part == 'train_all'
+        assert part in FOLDERS or part == 'train_all', part
 
         if data_dir is None:
             data_dir = ROOT_PATH / "data" / "datasets" / "mixed_librispeech"
