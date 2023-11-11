@@ -146,16 +146,14 @@ class Trainer(BaseTrainer):
         batch = self.move_batch_to_device(batch, self.device)
         if is_train:
             self.optimizer.zero_grad()
-        start_target = batch["target"].clone()
         outputs = self.model(**batch)
         if type(outputs) is dict:
             batch.update(outputs)
         else:
             batch["logits"] = outputs
 
-        batch["log_probs"] = F.log_softmax(batch["logits"], dim=-1)
         batch["loss"] = self.criterion(batch['short'], batch['middle'], batch['long'],
-                                       batch['target'], batch['log_probs'], batch['speaker_id'])
+                                       batch['target'], batch['logits'], batch['speaker_id'])
         if is_train and not ((batch_idx + 1) % self.config['trainer']['batch_acum']):
             batch["loss"].backward()
             self._clip_grad_norm()

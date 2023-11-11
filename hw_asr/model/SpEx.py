@@ -245,12 +245,12 @@ class SpEx(BaseModel):
         enc_mix = self.mix_norm(enc_mix)
 
         ref = batch['ref']
-        short_ref, middle_ref, long_ref, enc_ref = self.encoder(ref)
+        _, _, _, enc_ref = self.encoder(ref)
         ref = self.ref_net(enc_ref)
 
         ref_T = (batch['ref'].shape[-1] - self.L[0]) // (self.L[0] // 2) + 1
         ref_T = ((ref_T // 3) // 3) // 3
-        ref = torch.sum(ref, -1) / float(ref_T)
+        ref = torch.sum(ref, dim=-1) / float(ref_T)
 
         for module in self.tcn:
             enc_mix = module(enc_mix, ref)
