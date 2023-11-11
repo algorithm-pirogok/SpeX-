@@ -4,6 +4,11 @@
     train: true
     zero_mean: false
 
+- type: CEMetric
+  args:
+    name: CE Metric
+    train: true
+
 - type: PESQMetric
   args:
     name: "PESQ Metric"
