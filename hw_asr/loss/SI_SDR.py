@@ -14,38 +14,24 @@ class SI_SDR(nn.Module):
         self.long_coeff = 1 - short - middle
         self.eps = eps
 
-    def _print_loss(self, est_batch, target_batch):
-        alpha = torch.sum(target_batch * est_batch, dim=-1, keepdim=True) \
-                / (torch.norm(target_batch, dim=-1, keepdim=True) ** 2 + self.eps)
-        scale_target = alpha * target_batch
-        print("OLD LOSS", 20 * torch.log10(
-            torch.sum(torch.norm(scale_target, dim=1) / (torch.norm(scale_target - est_batch, dim=1) + self.eps)
-                      + self.eps)))
+    def _compute_sisdr(self, estimate, target):
+        if estimate.shape != target.shape:
+            raise ValueError("Inputs must have the same shape")
 
-        scale_target = torch.sum(target_batch * est_batch, dim=-1, keepdim=True) * target_batch \
-                       / (torch.sum(target_batch ** 2, dim=-1, keepdim=True) + self.eps)
+        # Computing the numerator and denominator components of the SI-SDR
+        product = torch.sum(target * estimate, dim=-1, keepdim=True) * target / torch.sum(target * target, dim=-1,
+                                                                                          keepdim=True)
+        error = estimate - product
+        if self.zero_mean:
+            error -= torch.mean(error, dim=-1, keepdim=True) * target
 
-        print("V1 loss", 10 * torch.log10(
-            torch.sum(torch.sum(scale_target ** 2, dim=1)
-                      / (torch.sum((scale_target - est_batch) ** 2, dim=1) + self.eps)
-                      + self.eps)))
+        # Computing SI-SDR
+        SISDR = 10 * torch.log10(torch.sum(product * product, dim=-1) / torch.sum(error * error, dim=-1))
 
-        scale_target = torch.sum(target_batch * est_batch, dim=-1, keepdim=True) * target_batch \
-                       / (torch.sum(target_batch ** 2, dim=-1, keepdim=True) + self.eps)
-        num = torch.sum((scale_target - est_batch) ** 2, dim=-1) + self.eps
-        frac = torch.sum(scale_target ** 2, dim=-1) + self.eps
-        print("V2 loss", torch.sum((-10 * torch.log10(num / frac))))
+        # Averaging SI-SDR over the batch
+        loss = -torch.mean(SISDR)
 
-    def _compute_sisdr(self, est_batch, target_batch):
-        scale_target = torch.sum(target_batch * est_batch, dim=-1, keepdim=True) * target_batch \
-                       / (torch.sum(target_batch ** 2, dim=-1, keepdim=True) + self.eps)
-        self._print_loss(est_batch, target_batch)
-        final_loss = torch.sum(10 * torch.log10(
-            torch.sum(scale_target ** 2, dim=1)
-            / (torch.sum((scale_target - est_batch) ** 2, dim=1) + self.eps)
-            + self.eps))
-        print("FINAL LOSS", final_loss)
-        return final_loss
+        return loss
 
     def forward(self, short_pred, middle_pred, long_pred, target):
         short = self._compute_sisdr(short_pred, target)
