@@ -1,5 +1,5 @@
 defaults:
-  - arch: modern_arch
+  - arch: base_arch
   # - augmentations: base_augmentations
   - data: base_dataset
   - loss: base_loss
@@ -7,7 +7,7 @@ defaults:
   - metrics: base_metrics
   - preprocessing: base_preprocessing
   - trainer: base_trainer
-  - optimizer: AdamW
+  - optimizer: Adam
 
 name: base_config
 n_gpu: 1
