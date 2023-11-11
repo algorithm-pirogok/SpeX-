@@ -14,7 +14,6 @@ class SI_SDR(nn.Module):
         self.middle_coeff = middle
         self.long_coeff = 1 - short - middle
         self.eps = eps
-        self.si_sdr = ScaleInvariantSignalDistortionRatio(zero_mean=False)
 
     def _compute_sisdr(self, preds, target):
         alpha = (torch.sum(preds * target, dim=-1, keepdim=True) + self.eps) / (
@@ -25,7 +24,7 @@ class SI_SDR(nn.Module):
         noise = target_scaled - preds
 
         val = (torch.sum(target_scaled ** 2, dim=-1) + self.eps) / (torch.sum(noise ** 2, dim=-1) + self.eps)
-        return 10 * torch.log10(val)
+        return torch.sum(10 * torch.log10(val))
 
     def forward(self, short_pred, middle_pred, long_pred, target):
         short = self._compute_sisdr(short_pred, target)
