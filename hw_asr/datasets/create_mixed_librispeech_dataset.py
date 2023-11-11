@@ -290,6 +290,16 @@ def load_librispeech_dataset(dataset_name: str, nspeakers: int = 150, nfiles: in
     else:
         if not os.path.exists(ROOT_PATH / f"data/datasets/librispeech/{dataset_name}"):
             base_loader = LibrispeechDataset(part=dataset_name)
+
+            """arch_path = self._data_dir / f"{part}.tar.gz"
+            print(f"Loading part {part}")
+            download_file(URL_LINKS[part], arch_path)
+            shutil.unpack_archive(arch_path, self._data_dir)
+            for fpath in (self._data_dir / "LibriSpeech").iterdir():
+                shutil.move(str(fpath), str(self._data_dir / fpath.name))
+            os.remove(str(arch_path))
+            shutil.rmtree(str(self._data_dir / "LibriSpeech"))"""
+
             base_loader._load_part(part=dataset_name)
         if update or not os.path.exists(ROOT_PATH / f"data/datasets/merge_librispeech/{dataset_name}"):
             is_test = 'test' in dataset_name
