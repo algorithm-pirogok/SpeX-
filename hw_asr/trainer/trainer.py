@@ -164,7 +164,7 @@ class Trainer(BaseTrainer):
                 self.lr_scheduler.step()
 
         for head in ("short", "middle", "long"):
-            batch[head] = 23 * batch[head] / torch.norm(batch[head], dim=1, keepdim=True)
+            batch[head] = 20 * batch[head] / torch.norm(batch[head], dim=1, keepdim=True)
 
         if not is_train or ((batch_idx + 1) % self.config['trainer']['batch_acum']):
             metrics.update("loss", batch["loss"].item())
