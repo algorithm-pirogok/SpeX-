@@ -143,7 +143,7 @@ class Trainer(BaseTrainer):
         batch = self.move_batch_to_device(batch, self.device)
         if is_train:
             self.optimizer.zero_grad()
-        start_target = batch["target"].copy(deep=True)
+        start_target = batch["target"].clone()
         outputs = self.model(**batch)
         if type(outputs) is dict:
             batch.update(outputs)
