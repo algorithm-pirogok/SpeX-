@@ -4,7 +4,7 @@ from hw_asr.base.base_metric import BaseMetric
 
 class CEMetric(BaseMetric):
     def __init__(self, *args, **kwargs):
-        self.ce = nn.CrossEntropyLoss
+        self.ce = nn.CrossEntropyLoss()
         super().__init__(*args, **kwargs)
 
     def __call__(self, **batch):
