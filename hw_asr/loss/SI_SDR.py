@@ -30,8 +30,12 @@ class SI_SDR(nn.Module):
 
         # Averaging SI-SDR over the batch
         loss = -torch.mean(SISDR)
+        pred_loss = self.si_sdr(estimate.to("cpu").detach(), target.to("cpu").detach())
         print("PRED_LOSS:", loss)
-        print("REAL LOSS:", self.si_sdr(estimate.to("cpu").detach(), target.to("cpu").detach()))
+        print("REAL LOSS:", pred_loss)
+        print("RELATIVE", loss / pred_loss)
+        print("DELTA", loss - pred_loss)
+        print('')
         return loss
 
     def forward(self, short_pred, middle_pred, long_pred, target):
