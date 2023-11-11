@@ -22,8 +22,6 @@ class SI_SDR(nn.Module):
         product = torch.sum(target * estimate, dim=-1, keepdim=True) * target / torch.sum(target * target, dim=-1,
                                                                                           keepdim=True)
         error = estimate - product
-        if self.zero_mean:
-            error -= torch.mean(error, dim=-1, keepdim=True) * target
 
         # Computing SI-SDR
         SISDR = 10 * torch.log10(torch.sum(product * product, dim=-1) / torch.sum(error * error, dim=-1))
