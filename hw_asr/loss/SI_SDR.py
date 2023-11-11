@@ -31,7 +31,7 @@ class SI_SDR(nn.Module):
         short = self._compute_sisdr(short_pred, target)
         middle = self._compute_sisdr(middle_pred, target)
         long = self._compute_sisdr(long_pred, target)
-        return self.short_coeff * short + self.middle_coeff * middle + self.long_coeff * long
+        return (self.short_coeff * short + self.middle_coeff * middle + self.long_coeff * long) / short_pred.shape[0]
 
 
 class FinalLoss(nn.Module):
