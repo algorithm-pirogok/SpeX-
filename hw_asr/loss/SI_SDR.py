@@ -33,6 +33,7 @@ class SI_SDR(nn.Module):
         print("PRED_LOSS:", loss)
         print("LOSS:", self.si_sdr)
         print(estimate.to("cpu"))
+        print(target.to("cpu"))
         product("REAL LOSS:", self.si_sdr(estimate.to("cpu").detach(), target.to("cpu").detach()))
         return loss
 
