@@ -16,26 +16,16 @@ class SI_SDR(nn.Module):
         self.eps = eps
         self.si_sdr = ScaleInvariantSignalDistortionRatio(zero_mean=False)
 
-    def _compute_sisdr(self, estimate, target):
-        if estimate.shape != target.shape:
-            raise ValueError("Inputs must have the same shape")
+    def _compute_sisdr(self, preds, target):
+        alpha = (torch.sum(preds * target, dim=-1, keepdim=True) + self.eps) / (
+                torch.sum(target ** 2, dim=-1, keepdim=True) + self.eps
+        )
+        target_scaled = alpha * target
 
-        # Computing the numerator and denominator components of the SI-SDR
-        product = torch.sum(target * estimate, dim=-1, keepdim=True) * target / torch.sum(target ** 2, dim=-1,
-                                                                                          keepdim=True)
-        error = estimate - product
+        noise = target_scaled - preds
 
-        # Computing SI-SDR
-        SISDR = 10 * torch.log10(torch.sum(product ** 2, dim=-1) / torch.sum(error ** 2, dim=-1))
-
-        # Averaging SI-SDR over the batch
-        loss = torch.mean(SISDR)
-        pred_loss = self.si_sdr(estimate.to("cpu").detach(), target.to("cpu").detach())
-        print("PRED_LOSS:", loss)
-        print("REAL LOSS:", pred_loss)
-        print("RELATIVE", loss / pred_loss)
-        print("DELTA", loss - pred_loss)
-        return -loss
+        val = (torch.sum(target_scaled ** 2, dim=-1) + self.eps) / (torch.sum(noise ** 2, dim=-1) + self.eps)
+        return -10 * torch.log10(val)
 
     def forward(self, short_pred, middle_pred, long_pred, target):
         short = self._compute_sisdr(short_pred, target)
