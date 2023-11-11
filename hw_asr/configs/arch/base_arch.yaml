@@ -1,7 +1,7 @@
 type: SpEx
 args:
   n_feats: 128
-  n_class: 125
+  n_class: 200
 
   encoder_params:
     out_channels: 256
