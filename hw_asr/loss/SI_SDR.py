@@ -27,7 +27,7 @@ class SI_SDR(nn.Module):
         SISDR = 10 * torch.log10(torch.sum(product * product, dim=-1) / torch.sum(error * error, dim=-1))
 
         # Averaging SI-SDR over the batch
-        loss = -torch.mean(SISDR)
+        loss = torch.mean(SISDR)
 
         return loss
 
