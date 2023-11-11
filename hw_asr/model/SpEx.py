@@ -38,7 +38,8 @@ class Normalization(nn.Module):
     _torch_unlinear = {
         'ReLU': F.relu,
         'ReLU6': F.relu6,
-        'LeakyReLU': F.leaky_relu
+        'LeakyReLU': F.leaky_relu,
+        'PReLU': F.prelu
     }
 
     def __init__(self, input_dim: int, unlinear: str):
