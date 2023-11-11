@@ -18,7 +18,7 @@ args:
     conv_channels: 512
     kernel_size: 3
     len_of_tcn_chain: 9
-    count_of_tch: 5
+    count_of_tch: 4
 
 
   resnet_count: 3
