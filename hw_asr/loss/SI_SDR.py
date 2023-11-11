@@ -39,7 +39,7 @@ class FinalLoss(nn.Module):
     def forward(self, short_pred, middle_pred, long_pred, target, log_probs, speaker_id):
         print("START_COMPUTE_LOSS")
         sisdr = self.sisdr(short_pred, middle_pred, long_pred, target).to("cuda")
-        ce_loss = self.celoss(log_probs, torch.Tensor(speaker_id).type(torch.LongTensor).to("cuda")).detach()
+        ce_loss = self.celoss(log_probs, torch.Tensor(speaker_id).type(torch.LongTensor).to("cuda").detach())
         loss = sisdr + self.gamma * ce_loss
         print("END_COMPUTE_LOSS")
         return loss
