@@ -21,7 +21,7 @@ args:
     count_of_tch: 4
 
 
-  resnet_count: 3
+  resnet_count: 4
 
   final_params:
     unlinear: LeakyReLU
