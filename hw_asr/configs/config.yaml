@@ -3,7 +3,7 @@ defaults:
   # - augmentations: base_augmentations
   - data: base_dataset
   - loss: base_loss
-  - lr_scheduler: OneCycleLR
+  - lr_scheduler: LRStep
   - metrics: base_metrics
   - preprocessing: base_preprocessing
   - trainer: base_trainer
