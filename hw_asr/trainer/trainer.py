@@ -69,7 +69,7 @@ class Trainer(BaseTrainer):
         """
         for tensor_for_gpu in ["mixed", "ref", "target"]:
             batch[tensor_for_gpu] = batch[tensor_for_gpu].to(device)
-        batch["speaker_id"] = torch.Tensor(batch["speaker_id"]).to(device)
+        batch["speaker_id"] = torch.Tensor(batch["speaker_id"]).long().to(device)
         return batch
 
     def _clip_grad_norm(self):
