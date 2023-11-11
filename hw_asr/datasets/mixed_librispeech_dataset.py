@@ -55,7 +55,7 @@ class MixedLibrispeechDataset(BaseDataset):
         index = []
         split_dir = self._data_dir / part
         if not split_dir.exists():
-            load_librispeech_dataset(part, nspeakers=125, nfiles=10000)
+            load_librispeech_dataset(part, nspeakers=200, nfiles=10000)
 
         flac_dirs = set()
         for dirpath, dirnames, filenames in os.walk(str(split_dir)):
