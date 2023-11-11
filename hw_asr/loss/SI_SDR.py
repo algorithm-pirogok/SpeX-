@@ -40,8 +40,8 @@ class SI_SDR(nn.Module):
         scale_target = torch.sum(target_batch * est_batch, dim=-1, keepdim=True) * target_batch \
                        / (torch.sum(target_batch ** 2, dim=-1, keepdim=True) + self.eps)
         self._print_loss(est_batch, target_batch)
-        return 10 * torch.log10(
-            torch.sum(torch.sum(scale_target ** 2, dim=1)
+        return torch.sum(10 * torch.log10(
+            torch.sum(scale_target ** 2, dim=1)
                       / (torch.sum((scale_target - est_batch) ** 2, dim=1) + self.eps)
                       + self.eps))
 
