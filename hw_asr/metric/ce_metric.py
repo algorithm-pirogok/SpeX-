@@ -2,7 +2,7 @@ import torch.nn as nn
 from hw_asr.base.base_metric import BaseMetric
 
 
-class SISDRMetric(BaseMetric):
+class CEMetric(BaseMetric):
     def __init__(self, *args, **kwargs):
         self.ce = nn.CrossEntropyLoss
         super().__init__(*args, **kwargs)
