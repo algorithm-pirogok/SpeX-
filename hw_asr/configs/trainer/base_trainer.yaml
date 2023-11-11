@@ -8,5 +8,5 @@ visualize: wandb
 wandb_project: ss_homework
 wandb_name: paper_model
 wandb_entity: wandb_pirogok
-len_epoch: 500
+len_epoch: 1000
 grad_norm_clip: 10
