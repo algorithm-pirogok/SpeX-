@@ -17,7 +17,7 @@ args:
     spk_embed_dim: 256
     conv_channels: 512
     kernel_size: 3
-    len_of_tcn_chain: 10
+    len_of_tcn_chain: 8
     count_of_tch: 5
 
 
