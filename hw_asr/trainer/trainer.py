@@ -95,6 +95,7 @@ class Trainer(BaseTrainer):
             try:
                 batch = self.process_batch(
                     batch,
+                    batch_idx=batch_idx,
                     is_train=True,
                     metrics=self.train_metrics,
                 )
@@ -140,7 +141,7 @@ class Trainer(BaseTrainer):
             log.update(**{f"{part}_{name}": value for name, value in val_log.items()})
         return log
 
-    def process_batch(self, batch, is_train: bool, metrics: MetricTracker):
+    def process_batch(self, batch, batch_idx: int, is_train: bool, metrics: MetricTracker):
         batch = self.move_batch_to_device(batch, self.device)
         if is_train:
             self.optimizer.zero_grad()
@@ -154,7 +155,7 @@ class Trainer(BaseTrainer):
         batch["log_probs"] = F.log_softmax(batch["logits"], dim=-1)
         batch["loss"] = self.criterion(batch['short'], batch['middle'], batch['long'],
                                        batch['target'], batch['log_probs'], batch['speaker_id'])
-        if is_train:
+        if is_train and not ((batch_idx + 1) % self.config['trainer']['batch_acum']):
             batch["loss"].backward()
             self._clip_grad_norm()
             self.optimizer.step()
@@ -164,13 +165,12 @@ class Trainer(BaseTrainer):
         for head in ("short", "middle", "long"):
             batch[head] = 23 * batch[head] / torch.norm(batch[head], dim=1, keepdim=True)
 
-        metrics.update("loss", batch["loss"].item())
-        metric_iter = self._metrics_train if is_train else self._metrics_test
-        for met in metric_iter:
-            metrics.update(met.name, met(**batch))
-        assert torch.all(start_target == batch["target"])
+        if not is_train or ((batch_idx + 1) % self.config['trainer']['batch_acum']):
+            metrics.update("loss", batch["loss"].item())
+            metric_iter = self._metrics_train if is_train else self._metrics_test
+            for met in metric_iter:
+                metrics.update(met.name, met(**batch))
         return batch
-
 
     def _evaluation_epoch(self, epoch, part, dataloader):
         """
@@ -188,9 +188,10 @@ class Trainer(BaseTrainer):
                     total=len(dataloader),
             ):
                 batch = self.process_batch(
-                        batch,
-                        is_train=False,
-                        metrics=self.evaluation_metrics,
+                    batch,
+                    batch_idx=batch_idx,
+                    is_train=False,
+                    metrics=self.evaluation_metrics,
                 )
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_audio(batch['mixed'][0],
