@@ -143,6 +143,7 @@ class Trainer(BaseTrainer):
         batch = self.move_batch_to_device(batch, self.device)
         if is_train:
             self.optimizer.zero_grad()
+        start_target = batch["target"].copy(deep=True)
         outputs = self.model(**batch)
         if type(outputs) is dict:
             batch.update(outputs)
@@ -164,6 +165,7 @@ class Trainer(BaseTrainer):
         for met in metric_iter:
             print("FOR METRIC:", met.name)
             metrics.update(met.name, met(**batch))
+        assert start_target == batch["target"]
         return batch
 
     def _evaluation_epoch(self, epoch, part, dataloader):
