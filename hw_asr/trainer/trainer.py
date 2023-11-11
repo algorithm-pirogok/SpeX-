@@ -165,7 +165,7 @@ class Trainer(BaseTrainer):
         for met in metric_iter:
             print("FOR METRIC:", met.name)
             metrics.update(met.name, met(**batch))
-        assert start_target == batch["target"]
+        assert torch.all(start_target == batch["target"])
         return batch
 
     def _evaluation_epoch(self, epoch, part, dataloader):
