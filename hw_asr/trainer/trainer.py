@@ -161,12 +161,16 @@ class Trainer(BaseTrainer):
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
+        for head in ("short", "middle", "long"):
+            batch[head] = 23 * batch[head] / torch.norm(batch[head], dim=1, keepdim=True)
+
         metrics.update("loss", batch["loss"].item())
         metric_iter = self._metrics_train if is_train else self._metrics_test
         for met in metric_iter:
             metrics.update(met.name, met(**batch))
         assert torch.all(start_target == batch["target"])
         return batch
+
 
     def _evaluation_epoch(self, epoch, part, dataloader):
         """
