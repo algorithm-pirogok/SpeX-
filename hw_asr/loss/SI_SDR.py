@@ -25,13 +25,13 @@ class SI_SDR(nn.Module):
         noise = target_scaled - preds
 
         val = (torch.sum(target_scaled ** 2, dim=-1) + self.eps) / (torch.sum(noise ** 2, dim=-1) + self.eps)
-        return -10 * torch.log10(val)
+        return 10 * torch.log10(val)
 
     def forward(self, short_pred, middle_pred, long_pred, target):
         short = self._compute_sisdr(short_pred, target)
         middle = self._compute_sisdr(middle_pred, target)
         long = self._compute_sisdr(long_pred, target)
-        return (self.short_coeff * short + self.middle_coeff * middle + self.long_coeff * long) / short_pred.shape[0]
+        return -(self.short_coeff * short + self.middle_coeff * middle + self.long_coeff * long) / short_pred.shape[0]
 
 
 class FinalLoss(nn.Module):
