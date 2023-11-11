@@ -37,9 +37,9 @@ class FinalLoss(nn.Module):
         self.celoss = nn.CrossEntropyLoss()
 
     def forward(self, short_pred, middle_pred, long_pred, target, log_probs, speaker_id):
-        print("START_COMPUTE_LOSS")
         sisdr = self.sisdr(short_pred, middle_pred, long_pred, target)
+        print(log_probs.device)
+        print(torch.tensor(speaker_id).device)
         ce_loss = self.celoss(log_probs, torch.tensor(speaker_id))
         loss = sisdr + self.gamma * ce_loss
-        print("END_COMPUTE_LOSS")
         return loss
