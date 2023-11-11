@@ -41,4 +41,4 @@ class FinalLoss(nn.Module):
         sisdr = self.sisdr(short_pred, middle_pred, long_pred, target)
         ce_loss = self.celoss(log_probs, speaker_id)
         loss = sisdr + self.gamma * ce_loss
-        return sisdr
+        return ce_loss
