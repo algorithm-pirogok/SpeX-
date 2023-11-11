@@ -69,6 +69,7 @@ class Trainer(BaseTrainer):
         """
         for tensor_for_gpu in ["mixed", "ref", "target"]:
             batch[tensor_for_gpu] = batch[tensor_for_gpu].to(device)
+        batch['speaker_id'] = torch.Tensor("speaker_id").to(device)
         return batch
 
     def _clip_grad_norm(self):
@@ -87,7 +88,6 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         self.writer.add_scalar("epoch", epoch)
-        print("START_RUN")
 
         for batch_idx, batch in enumerate(
                 tqdm(self.train_dataloader, desc="train", total=self.len_epoch)
@@ -108,7 +108,6 @@ class Trainer(BaseTrainer):
                     continue
                 else:
                     raise e
-            print("AFTER PROCESS_BATCH")
             self.train_metrics.update("grad norm", self.get_grad_norm())
             if batch_idx % self.log_step == 0:
                 self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
