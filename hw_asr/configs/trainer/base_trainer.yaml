@@ -6,8 +6,8 @@ monitor: min val_loss
 early_stop: 100
 visualize: wandb
 wandb_project: ss_homework
-wandb_name: paper_model_batch_acum
+wandb_name: model_improve
 wandb_entity: wandb_pirogok
-len_epoch: 2000
+len_epoch: 1500
 batch_acum: 5
 grad_norm_clip: 10
