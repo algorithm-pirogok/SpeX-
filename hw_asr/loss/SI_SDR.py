@@ -15,11 +15,11 @@ class SI_SDR(nn.Module):
         self.eps = eps
 
     def _compute_sisdr(self, est_batch, target_batch):
-        alpha = torch.sum(target_batch * est_batch, dim=-1, keepdim=True) \
-                / (torch.norm(target_batch, dim=-1, keepdim=True) ** 2 + self.eps)
-        scale_target = alpha * target_batch
-        return 20 * torch.log10(
-            torch.sum(torch.norm(scale_target, dim=1) / (torch.norm(scale_target - est_batch, dim=1) + self.eps)
+        scale_target = torch.sum(target_batch * est_batch, dim=-1, keepdim=True) * target_batch \
+                / (torch.sum(target_batch ** 2, dim=-1, keepdim=True) + self.eps)
+        return 10 * torch.log10(
+            torch.sum(torch.sum(scale_target ** 2, dim=1)
+                      / (torch.sum((scale_target - est_batch) ** 2, dim=1) + self.eps)
                       + self.eps))
 
     def forward(self, short_pred, middle_pred, long_pred, target):
