@@ -32,6 +32,7 @@ class SI_SDR(nn.Module):
         loss = -torch.mean(SISDR)
         print("PRED_LOSS:", loss)
         print("LOSS:", self.si_sdr)
+        print(estimate)
         product("REAL LOSS:", self.si_sdr(estimate.to("cpu").detach(), target.to("cpu").detach()))
         return loss
 
