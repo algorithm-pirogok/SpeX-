@@ -7,7 +7,7 @@ defaults:
   - metrics: base_metrics
   - preprocessing: base_preprocessing
   - trainer: base_trainer
-  - optimizer: Adam
+  - optimizer: RAdam
 
 name: base_config
 n_gpu: 1
