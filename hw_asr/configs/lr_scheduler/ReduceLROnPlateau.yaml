@@ -1,0 +1,6 @@
+type: ReduceLROnPlateau
+args:
+  factor: 0.8
+  patience: 8
+  threshold: 3e-2
+  T_mult: 10000

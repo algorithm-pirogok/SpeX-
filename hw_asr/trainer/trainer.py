@@ -119,7 +119,7 @@ class Trainer(BaseTrainer):
                     )
                 )
                 self.writer.add_scalar(
-                    "learning rate", self.lr_scheduler.get_last_lr()[0]
+                    "learning rate", self.optimizer.param_groups[0]['lr']
                 )
                 # self._log_predictions(is_validation=False, **batch)
                 self._log_audio(batch['mixed'][0],
