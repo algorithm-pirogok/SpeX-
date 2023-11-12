@@ -13,6 +13,8 @@ val:
     - _target_: hw_asr.datasets.MixedLibrispeechDataset
       part: dev-clean
       limit: 500
+      sr: 16000
+
 
 #test:
 #  batch_size: 4
