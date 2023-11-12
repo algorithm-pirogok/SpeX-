@@ -162,6 +162,7 @@ class Trainer(BaseTrainer):
         if not is_train or ((batch_idx + 1) % self.config['trainer']['batch_acum']):
             metrics.update("loss", batch["loss"].item())
             metric_iter = self._metrics_train if is_train else self._metrics_test
+            self.lr_scheduler.step(batch["loss"])
             for met in metric_iter:
                 metrics.update(met.name, met(**batch))
         return batch
@@ -187,8 +188,6 @@ class Trainer(BaseTrainer):
                     is_train=False,
                     metrics=self.evaluation_metrics,
                 )
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.step(batch["loss"])
 
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_audio(batch['mixed'][0],
