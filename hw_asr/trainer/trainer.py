@@ -158,8 +158,8 @@ class Trainer(BaseTrainer):
             batch["loss"].backward()
             self._clip_grad_norm()
             self.optimizer.step()
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+            # if self.lr_scheduler is not None:
+            #    self.lr_scheduler.step()
 
         for head in ("short", "middle", "long"):
             batch[head] = 20 * batch[head] / torch.norm(batch[head], dim=1, keepdim=True)
