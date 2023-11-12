@@ -28,10 +28,7 @@ np.random.seed(SEED)
 @hydra.main(config_path='hw_asr/configs', config_name='one_batch_config')
 def main(clf: DictConfig):
     logger = get_logger("train")
-    metrics = [
-        instantiate(metric_dict)
-        for metric_dict in clf["metrics"]
-    ]
+
     # setup data_loader instances
     dataloaders = get_dataloaders(clf)
     # build model architecture, then print to console

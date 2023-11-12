@@ -17,6 +17,7 @@ def get_dataloaders(clf):
         # create and join datasets
         datasets = []
         for ds in params["datasets"]:
+            print(ds)
             datasets.append(instantiate(ds))
         assert len(datasets)
         if len(datasets) > 1:
