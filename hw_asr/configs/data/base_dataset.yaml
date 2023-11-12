@@ -10,7 +10,7 @@ val:
   batch_size: 4
   num_workers: 8
   datasets:
-    - _target_: hw_asr.datasets.ixedLibrispeechDataset
+    - _target_: hw_asr.datasets.MixedLibrispeechDataset
       part: dev-clean
       limit: 500
 
