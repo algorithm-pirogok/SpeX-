@@ -3,6 +3,14 @@
     name: SI-SDR Metric
     train: true
     zero_mean: false
+    comb: false
+
+- type: SISDRMetric
+  args:
+    name: Comb SI-SDR Metric
+    train: true
+    zero_mean: false
+    comb: true
 
 - type: CEMetric
   args:
