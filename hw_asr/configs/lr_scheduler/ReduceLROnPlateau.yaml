@@ -1,5 +1,5 @@
 type: ReduceLROnPlateau
 args:
   factor: 0.6
-  patience: 6
-  threshold: 1
+  patience: 7
+  threshold: 0.6
