@@ -4,7 +4,7 @@ defaults:
   - loss: base_loss
   - lr_scheduler: ReduceLROnPlateau
   - metrics: base_metrics
-  # - preprocessing: base_preprocessing
+ - preprocessing: base_preprocessing
   - trainer: base_trainer
   - optimizer: Adam
 
