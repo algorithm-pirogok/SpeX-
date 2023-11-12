@@ -155,7 +155,7 @@ class Trainer(BaseTrainer):
             batch["loss"].backward()
             self._clip_grad_norm()
             self.optimizer.step()
-            self.lr_scheduler.step()
+            self.lr_scheduler.step()  # fix
 
         for head in ("short", "middle", "long"):
             batch[head] = 20 * batch[head] / torch.norm(batch[head], dim=1, keepdim=True)
