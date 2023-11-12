@@ -1,27 +1,23 @@
-- type: SISDRMetric
-  args:
-    name: SI-SDR Metric
-    train: true
-    zero_mean: false
-    comb: false
+- _target_: hw_asr.metric.SISDRMetric
+  name: SI-SDR Metric
+  train: true
+  zero_mean: false
+  comb: false
 
-- type: SISDRMetric
-  args:
-    name: Comb SI-SDR Metric
-    train: true
-    zero_mean: false
-    comb: true
+- _target_: hw_asr.metric.SISDRMetric
+  name: Comb SI-SDR Metric
+  train: true
+  zero_mean: false
+  comb: true
 
-- type: CEMetric
-  args:
-    name: CE Metric
-    train: true
+- _target_: hw_asr.metric.CEMetric
+  name: CE Metric
+  train: true
 
-- type: PESQMetric
-  args:
-    name: PESQ Metric
-    train: false
-    fs: 16000
-    mode: wb
-    n_processes: 8
+- _target_: hw_asr.metric.PESQMetric
+  name: PESQ Metric
+  train: false
+  fs: 16000
+  mode: wb
+  n_processes: 8
 

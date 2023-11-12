@@ -1,5 +1,2 @@
 sr: 16000
-spectrogram:
-  type: MelSpectrogram
-  args: {}
-log_spec: true
+log_spec: True

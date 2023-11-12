@@ -1,28 +1,27 @@
-type: SpEx
-args:
-  n_feats: 128
-  n_class: 200
+_target_: hw_asr.model.SpEx
+n_feats: 128
+n_class: 200
 
-  encoder_params:
-    out_channels: 256
-    L1: 20
-    L2: 80
-    L3: 160
+encoder_params:
+  out_channels: 256
+  L1: 20
+  L2: 80
+  L3: 160
 
-  norm_params:
-    unlinear: LeakyReLU
-    out_channels: 256
+norm_params:
+  unlinear: LeakyReLU
+  out_channels: 256
 
-  tcn_params:
-    spk_embed_dim: 256
-    conv_channels: 512
-    kernel_size: 3
-    len_of_tcn_chain: 9
-    count_of_tch: 4
+tcn_params:
+  spk_embed_dim: 256
+  conv_channels: 512
+  kernel_size: 3
+  len_of_tcn_chain: 9
+  count_of_tch: 4
 
 
-  resnet_count: 4
+resnet_count: 4
 
-  final_params:
-    unlinear: LeakyReLU
-    out_channels: 256
+final_params:
+  unlinear: LeakyReLU
+  out_channels: 256

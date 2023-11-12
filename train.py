@@ -3,18 +3,14 @@ import collections
 import warnings
 
 import hydra
+from hydra.utils import instantiate
 import numpy as np
-from omegaconf import OmegaConf, DictConfig
+from omegaconf import DictConfig
 import torch
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-import hw_asr.loss as module_loss
-import hw_asr.metric as module_metric
-import hw_asr.model as module_arch
 from hw_asr.trainer import Trainer
-from hw_asr.utils import prepare_device
+from hw_asr.utils import prepare_device, get_logger
 from hw_asr.utils.object_loading import get_dataloaders
-from hw_asr.utils.parse_config import ConfigParser
 
 # Отключение предупреждений
 warnings.simplefilter("ignore", UserWarning)
@@ -29,27 +25,25 @@ torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 
 
-@hydra.main(config_path='hw_asr/configs', config_name='config')
+@hydra.main(config_path='hw_asr/configs', config_name='one_batch_config')
 def main(clf: DictConfig):
-    config = ConfigParser(clf)
-    logger = config.get_logger("train")
-    text_encoder = config.get_text_encoder()
+    logger = get_logger("train")
 
     # setup data_loader instances
-    dataloaders = get_dataloaders(config, text_encoder)
+    dataloaders = get_dataloaders(clf)
     # build model architecture, then print to console
-    model = config.init_obj(config["arch"], module_arch)
+    model = instantiate(clf["arch"])
     logger.info(model)
     # prepare for (multi-device) GPU training
-    device, device_ids = prepare_device(config["n_gpu"])
+    device, device_ids = prepare_device(clf["n_gpu"])
     model = model.to(device)
     if len(device_ids) > 1:
         model = torch.nn.DataParallel(model, device_ids=device_ids)
     # get function handles of loss and metrics
-    loss_module = config.init_obj(config["loss"], module_loss).to(device)
+    loss_module = instantiate(clf["loss"]).to(device)
     metrics = [
-        config.init_obj(metric_dict, module_metric, text_encoder=text_encoder)
-        for metric_dict in config["metrics"]
+        instantiate(metric_dict)
+        for metric_dict in clf["metrics"]
     ]
     metrics_test = metrics
     metrics_train = [
@@ -58,20 +52,19 @@ def main(clf: DictConfig):
     # build optimizer, learning rate scheduler. delete every line containing lr_scheduler for
     # disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = config.init_obj(config["optimizer"], torch.optim, trainable_params)
-    lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
+    optimizer = instantiate(clf["optimizer"], trainable_params)
+    lr_scheduler = instantiate(clf["lr_scheduler"], optimizer)
     trainer = Trainer(
         model,
         loss_module,
         metrics_train,
         metrics_test,
         optimizer,
-        text_encoder=text_encoder,
-        config=config,
+        config=clf,
         device=device,
         dataloaders=dataloaders,
         lr_scheduler=lr_scheduler,
-        len_epoch=config["trainer"].get("len_epoch", None)
+        len_epoch=clf["trainer"].get("len_epoch", None)
     )
     trainer.train()
 

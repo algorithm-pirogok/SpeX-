@@ -1,3 +1,2 @@
-type: SGD
-args:
-  lr: 1e-2
+_target_: torch.optim.SGD
+lr: 1e-2

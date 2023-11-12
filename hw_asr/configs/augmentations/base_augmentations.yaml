@@ -1,7 +1,0 @@
-wave:
-  - type: Gain
-    args:
-      p: 1
-  - type: ShiftAugmentation
-    args:
-      p: 1

@@ -1,3 +1,2 @@
-type: AdamW
-args:
-  lr: 2e-4
+_target_: torch.optim.AdamW
+lr: 2e-4

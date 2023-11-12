@@ -2,33 +2,23 @@ from operator import xor
 
 from torch.utils.data import ConcatDataset, DataLoader
 
-import hw_asr.augmentations
 import hw_asr.datasets
+from hydra.utils import instantiate
 from hw_asr import batch_sampler as batch_sampler_module
-from hw_asr.base.base_text_encoder import BaseTextEncoder
 from hw_asr.collate_fn.collate import collate_fn
-from hw_asr.utils.parse_config import ConfigParser
 
 
-def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
+def get_dataloaders(clf):
     dataloaders = {}
-    for split, params in configs["data"].items():
+    for split, params in clf["data"].items():
         num_workers = params.get("num_workers", 1)
 
-        # set train augmentations
-        if split == 'train':
-            wave_augs, spec_augs = hw_asr.augmentations.from_configs(configs)
-            drop_last = True
-        else:
-            wave_augs, spec_augs = None, None
-            drop_last = False
+        drop_last = split == 'train'
 
         # create and join datasets
         datasets = []
         for ds in params["datasets"]:
-            datasets.append(configs.init_obj(
-                ds, hw_asr.datasets, text_encoder=text_encoder, config_parser=configs,
-                wave_augs=wave_augs, spec_augs=spec_augs))
+            datasets.append(instantiate(ds))
         assert len(datasets)
         if len(datasets) > 1:
             dataset = ConcatDataset(datasets)
@@ -42,8 +32,7 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
             shuffle = True
             batch_sampler = None
         elif "batch_sampler" in params:
-            batch_sampler = configs.init_obj(params["batch_sampler"], batch_sampler_module,
-                                             data_source=dataset)
+            batch_sampler = instantiate(params["batch_sampler"], data_source=dataset)
             bs, shuffle = 1, False
         else:
             raise Exception()

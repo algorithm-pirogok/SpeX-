@@ -1,3 +1,2 @@
-type: RAdam
-args:
-  lr: 2e-4
+_target_: torch.optim.RAdam
+lr: 2e-4
