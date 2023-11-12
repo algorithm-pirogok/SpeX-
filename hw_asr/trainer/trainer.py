@@ -191,6 +191,7 @@ class Trainer(BaseTrainer):
                     metrics=self.evaluation_metrics,
                 )
             if self.lr_scheduler is not None:
+                print("KEYS", batch.keys())
                 self.lr_scheduler.step(batch["SI-SDR Metric"])
 
             self.writer.set_step(epoch * self.len_epoch, part)
