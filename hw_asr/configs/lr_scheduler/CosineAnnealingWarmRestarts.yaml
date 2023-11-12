@@ -2,3 +2,4 @@ type: CosineAnnealingWarmRestarts
 args:
   T_0: 1000
   T_mult: 2
+  verbose: True
