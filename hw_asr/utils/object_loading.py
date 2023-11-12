@@ -2,7 +2,6 @@ from operator import xor
 
 from torch.utils.data import ConcatDataset, DataLoader
 
-import hw_asr.datasets
 from hydra.utils import instantiate
 from hw_asr import batch_sampler as batch_sampler_module
 from hw_asr.collate_fn.collate import collate_fn

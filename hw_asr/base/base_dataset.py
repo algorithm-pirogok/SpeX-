@@ -2,10 +2,7 @@ import logging
 import random
 from typing import List
 
-import numpy as np
-import torch
 import torchaudio
-from torch import Tensor
 from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ train:
   num_workers: 1
   datasets:
     - _target_: hw_asr.datasets.MixedLibrispeechDataset
-      part: test-clean
+      part: dev-clean
       sr: 16000
 
 val:
@@ -11,7 +11,7 @@ val:
   num_workers: 1
   datasets:
     - _target_: hw_asr.datasets.MixedLibrispeechDataset
-      part: test-clean
+      part: dev-clean
       limit: 5
       sr: 16000
 
