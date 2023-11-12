@@ -2,7 +2,7 @@ train:
   batch_size: 4
   num_workers: 8
   datasets:
-    - _target_: MixedLibrispeechDataset
+    - _target_: hw_asr.datasets.MixedLibrispeechDataset
       part: train-clean-100
       sr: 16000
 
@@ -10,7 +10,7 @@ val:
   batch_size: 4
   num_workers: 8
   datasets:
-    - _target_: MixedLibrispeechDataset
+    - _target_: Mhw_asr.datasets.ixedLibrispeechDataset
       part: dev-clean
       limit: 500
 
