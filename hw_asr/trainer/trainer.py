@@ -191,7 +191,7 @@ class Trainer(BaseTrainer):
                     metrics=self.evaluation_metrics,
                 )
             if self.lr_scheduler is not None:
-                self.lr_scheduler.step(batch["loss"])
+                self.lr_scheduler.step(batch["SI-SDR Metric"])
 
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_audio(batch['mixed'][0],
