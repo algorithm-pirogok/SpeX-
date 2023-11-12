@@ -158,8 +158,6 @@ class Trainer(BaseTrainer):
             batch["loss"].backward()
             self._clip_grad_norm()
             self.optimizer.step()
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.step(batch["loss"])
 
         for head in ("short", "middle", "long"):
             batch[head] = 20 * batch[head] / torch.norm(batch[head], dim=1, keepdim=True)
@@ -192,6 +190,9 @@ class Trainer(BaseTrainer):
                     is_train=False,
                     metrics=self.evaluation_metrics,
                 )
+            if self.lr_scheduler is not None:
+                self.lr_scheduler.step(batch["loss"])
+
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_audio(batch['mixed'][0],
                             batch['short'][0],

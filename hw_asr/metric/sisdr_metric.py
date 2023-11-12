@@ -11,6 +11,7 @@ class SISDRMetric(BaseMetric):
     def __call__(self, **batch):
         short = batch["short"].to("cpu").detach()
         middle = batch["middle"].to("cpu").detach()
+        long = batch["long"].to("cpu").detach()
         target = batch["target"].to("cpu").detach()
-        ref = batch["ref"].to("cpu").detach()
-        return self.si_sdr(short, target)
+        pred = short * 0.8 + middle * 0.1 + long * 0.1
+        return self.si_sdr(pred, target)
