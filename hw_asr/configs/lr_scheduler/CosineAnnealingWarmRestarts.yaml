@@ -1,5 +1,5 @@
 type: CosineAnnealingWarmRestarts
 args:
-  T_0: 1000
-  T_mult: 2
+  T_0: 100000
+  T_mult: 10000
   verbose: True
