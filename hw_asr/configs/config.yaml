@@ -1,7 +1,7 @@
 defaults:
   - arch: base_arch
-  - # - augmentations: base_augmentations
-  - data: base_dataset
+  # - augmentations: base_augmentations
+  - data: one_batch_dataset
   - loss: base_loss
   - lr_scheduler: ReduceLROnPlateau
   - metrics: base_metrics
