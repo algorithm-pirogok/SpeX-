@@ -44,7 +44,10 @@ class Normalization(nn.Module):
 
     def __init__(self, input_dim: int, unlinear: str):
         super().__init__()
-        self.unlinear = self._torch_unlinear[unlinear]
+        if unlinear == 'PReLU':
+            self.unlinear = nn.PReLU()
+        else:
+            self.unlinear = self._torch_unlinear[unlinear]
         self.normalization = nn.LayerNorm(input_dim)
 
     def forward(self, x: torch.Tensor):
@@ -224,7 +227,10 @@ class SpEx(BaseModel):
                 for _ in range(3)
             ]
         )
-        self.mask_unlinear = self._torch_unlinear[final_params.unlinear]
+        if final_params.unlinear == 'PReLU':
+            self.mask_unlinear = nn.PReLU()
+        else:
+            self.mask_unlinear = self._torch_unlinear[final_params.unlinear]
         self.decoder_short = nn.ConvTranspose1d(in_channels=encoder_params.out_channels, out_channels=1,
                                                 kernel_size=encoder_params.L1, stride=encoder_params.L1 // 2)
         self.decoder_middle = nn.ConvTranspose1d(in_channels=encoder_params.out_channels, out_channels=1,
