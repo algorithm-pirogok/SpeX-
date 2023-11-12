@@ -153,7 +153,7 @@ class Trainer(BaseTrainer):
             batch["logits"] = outputs
 
         batch["loss"] = self.criterion(batch['short'], batch['middle'], batch['long'],
-                                       batch['target'], batch['logits'], batch['speaker_id'])
+                                       batch['target'], batch['logits'], batch['speaker_id'], is_train)
         if is_train and not ((batch_idx + 1) % self.config['trainer']['batch_acum']):
             batch["loss"].backward()
             self._clip_grad_norm()
@@ -191,8 +191,7 @@ class Trainer(BaseTrainer):
                     metrics=self.evaluation_metrics,
                 )
             if self.lr_scheduler is not None:
-                print("KEYS", batch.keys())
-                self.lr_scheduler.step(batch["SI-SDR Metric"])
+                self.lr_scheduler.step(batch["loss"])
 
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_audio(batch['mixed'][0],

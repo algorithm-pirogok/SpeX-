@@ -11,9 +11,9 @@
 
 - type: PESQMetric
   args:
-    name: "PESQ Metric"
+    name: PESQ Metric
     train: false
     fs: 16000
-    mode: 'wb'
+    mode: wb
     n_processes: 8
 

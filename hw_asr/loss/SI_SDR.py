@@ -41,8 +41,8 @@ class FinalLoss(nn.Module):
         self.gamma = gamma
         self.celoss = nn.CrossEntropyLoss()
 
-    def forward(self, short_pred, middle_pred, long_pred, target, log_probs, speaker_id):
+    def forward(self, short_pred, middle_pred, long_pred, target, log_probs, speaker_id, is_train):
         sisdr = self.sisdr(short_pred, middle_pred, long_pred, target)
         ce_loss = self.celoss(log_probs, speaker_id)
-        loss = sisdr + self.gamma * ce_loss
+        loss = sisdr + self.gamma * ce_loss if is_train else sisdr
         return loss
