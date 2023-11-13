@@ -1,0 +1,15 @@
+defaults:
+  - arch: base_arch
+  # - augmentations: base_augmentations
+  - data: test_dataset
+  - loss: base_loss
+  - lr_scheduler: LRStep
+  - metrics: test_metrics
+  - preprocessing: base_preprocessing
+  - trainer: base_trainer
+  - optimizer: Adam
+
+name: base_config
+n_gpu: 1
+checkpoint:
+out_file: out.json

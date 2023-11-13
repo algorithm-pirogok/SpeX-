@@ -10,20 +10,20 @@ import hydra
 from hydra.utils import instantiate
 import torch
 from tqdm import tqdm
+import pyloudnorm as pyln
 
 from hw_asr.metric.utils import calc_cer, calc_wer
 import hw_asr.model as module_model
 from hw_asr.trainer import Trainer
+from hw_asr.metric import PESQMetric, SISDRMetric
 from hw_asr.utils import ROOT_PATH, get_logger
 from hw_asr.utils.object_loading import get_dataloaders
 
 DEFAULT_CHECKPOINT_PATH = ROOT_PATH / "default_test_model" / "checkpoint.pth"
 
 
-@hydra.main(config_path='hw_asr/configs', config_name='config')
-def main(clf, out_file, mode, pool):
-    def _compute_metrics(target, pred):
-        return calc_wer(target, pred), calc_cer(target, pred)
+@hydra.main(config_path='hw_asr/configs', config_name='test_config')
+def main(clf):
 
     logger = get_logger("test")
 
@@ -31,16 +31,16 @@ def main(clf, out_file, mode, pool):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # setup data_loader instances
-    dataloaders = get_dataloaders(config)
+    dataloaders = get_dataloaders(clf)
 
     # build model architecture
-    model = instantiate(config["arch"])
+    model = instantiate(clf["arch"])
     logger.info(model)
 
-    logger.info("Loading checkpoint: {} ...".format(config.resume))
-    checkpoint = torch.load(config.resume, map_location=device)
+    logger.info("Loading checkpoint: {} ...".format(clf.checkpoint))
+    checkpoint = torch.load(clf.checkpoint, map_location=device)
     state_dict = checkpoint["state_dict"]
-    if config["n_gpu"] > 1:
+    if clf["n_gpu"] > 1:
         model = torch.nn.DataParallel(model)
     model.load_state_dict(state_dict)
 
@@ -51,41 +51,48 @@ def main(clf, out_file, mode, pool):
     results = []
     metrcics = defaultdict(list)
 
+    pesq = PESQMetric(name="PESQ Metric", train=False, fs=16000, mode='wb', n_processes=1, comb=False)
+    comb_pesq = PESQMetric(name="Comb PESQ Metric", train=False, fs=16000, mode='wb', n_processes=1, comb=True)
+    si_sdr = SISDRMetric(name="SI-SDR Metric", train=True, zero_mean=False, comb=False)
+    comb_si_sdr = SISDRMetric(name="SI-SDR Metric", train=True, zero_mean=False, comb=True)
+
+    norm_wav = pyln.Meter(clf["preprocessing"]["sr"])
+
     with torch.no_grad():
-        for batch_num, batch in enumerate(tqdm(dataloaders[mode])):
-            batch = Trainer.move_batch_to_device(batch, device)
-            output = model(**batch)
-            if type(output) is dict:
-                batch.update(output)
-            else:
-                batch["logits"] = output
-            batch["log_probs"] = torch.log_softmax(batch["logits"], dim=-1)
-            batch["log_probs_length"] = model.transform_input_lengths(
-                batch["spectrogram_length"]
-            )
-            batch["probs"] = batch["log_probs"].exp().cpu()
-            batch["argmax"] = batch["probs"].argmax(-1)
+        for dataset in dataloaders.keys():
+            for batch_num, batch in enumerate(tqdm(dataloaders[dataset])):
+                batch = Trainer.move_batch_to_device(batch, device)
+                output = model(**batch)
+                if type(output) is dict:
+                    batch.update(output)
+                else:
+                    raise Exception("change type of model")
+                for ind in range(len(batch['snr'])):
+                    for mode in ('short', 'middle', 'long'):
+                        batch[mode][ind] = torch.tensor(pyln.normalize.loudness(
+                            batch[mode][ind].cpu().numpy(),
+                            norm_wav.integrated_loudness(batch[mode][ind].cpu().numpy()),
+                            -23.0
+                        )).to(device)
+                    curr_batch = {key: batch[key][ind] for key in batch.keys()}
+                    metrcics["si_sdr"].append(si_sdr(**curr_batch).item())
+                    metrcics["comb_si_sdr"].append(comb_si_sdr(**curr_batch).item())
+                    metrcics["pesq"].append(pesq(**curr_batch).item())
+                    metrcics["comb_pesq"].append(comb_pesq(**curr_batch).item())
 
-            for i in range(len(batch["text"])):
-                argmax = batch["argmax"][i]
-                argmax = argmax[: int(batch["log_probs_length"][i])]
-                results.append(
-                    {
-                        "ground_truth": batch["text"][i],
-                        "pred_text_argmax": text_encoder.ctc_decode(argmax.cpu().numpy()),
-                        "pred_text_beam_search": text_encoder.ctc_beam_search(
-                            batch["probs"][i], batch["log_probs_length"][i], beam_size=30
-                        )[0].text,
-                        "pred_language_model": text_encoder.lm_beam_search(
-                            batch["logits"][i], batch["log_probs_length"][i]
-                        )
-                    }
-                )
+                print("Iteration:", batch_num)
+                for key, value in metrcics.items():
+                    print(f"{key}: {np.mean(value)}")
 
-            for res in results:
-                for key in ['pred_text_argmax', 'pred_text_beam_search', 'pred_language_model']:
-                    metrcics[key[5:]].append(_compute_metrics(res['ground_truth'], res[key]))
+    final_dict = {}
+    for key, value in metrcics.items():
+        final_dict[key] = np.mean(value)
+        print(f"{key}: {np.mean(value)}")
 
+    with open(clf.out_file, "w") as f:
+        json.dump(final_dict, f, indent=2)
+
+    '''
             logger.info(f"butch_num {batch_num}, len_of_object {len(metrcics['text_argmax'])}")
 
             for key, history in metrcics.items():
@@ -96,108 +103,8 @@ def main(clf, out_file, mode, pool):
                 logger.info(f'{mode} {key}_CER = {cer}')
 
             with Path(out_file).open("w") as f:
-                json.dump(results, f, indent=2)
+                json.dump(results, f, indent=2)'''
 
 
 if __name__ == "__main__":
-    args = argparse.ArgumentParser(description="PyTorch Template")
-    args.add_argument(
-        "-c",
-        "--config",
-        default=None,
-        type=str,
-        help="config file path (default: None)",
-    )
-    args.add_argument(
-        "-r",
-        "--resume",
-        default=str(DEFAULT_CHECKPOINT_PATH.absolute().resolve()),
-        type=str,
-        help="path to latest checkpoint (default: None)",
-    )
-    args.add_argument(
-        "-m",
-        "--mode",
-        default="test",
-        type=str,
-        help="mode for testing: clean or other",
-    )
-    args.add_argument(
-        "-d",
-        "--device",
-        default=None,
-        type=str,
-        help="indices of GPUs to enable (default: all)",
-    )
-    args.add_argument(
-        "-o",
-        "--output",
-        default="output.json",
-        type=str,
-        help="File to write results (.json)",
-    )
-    args.add_argument(
-        "-t",
-        "--test-data-folder",
-        default=None,
-        type=str,
-        help="Path to dataset",
-    )
-    args.add_argument(
-        "-b",
-        "--batch-size",
-        default=25,
-        type=int,
-        help="Test dataset batch size",
-    )
-    args.add_argument(
-        "-j",
-        "--jobs",
-        default=1,
-        type=int,
-        help="Number of workers for test dataloader",
-    )
-
-    args = args.parse_args()
-
-    # set GPUs
-    if args.device is not None:
-        os.environ["CUDA_VISIBLE_DEVICES"] = args.device
-
-    # first, we need to obtain config with model parameters
-    # we assume it is located with checkpoint in the same folder
-    model_config = Path(args.resume).parent / "config.yaml"
-    with model_config.open() as f:
-        config = ConfigParser(json.load(f), resume=args.resume)
-
-    # update with addition configs from `args.config` if provided
-    if args.config is not None:
-        with Path(args.config).open() as f:
-            config.config.update(json.load(f))
-
-    # if `--test-data-folder` was provided, set it as a default test set
-    if args.test_data_folder is not None:
-        test_data_folder = Path(args.test_data_folder).absolute().resolve()
-        assert test_data_folder.exists()
-        config.config["data"] = {
-            "test": {
-                "batch_size": args.batch_size,
-                "num_workers": args.jobs,
-                "datasets": [
-                    {
-                        "type": "CustomDirAudioDataset",
-                        "args": {
-                            "audio_dir": str(test_data_folder / "audio"),
-                            "transcription_dir": str(
-                                test_data_folder / "transcriptions"
-                            ),
-                        },
-                    }
-                ],
-            }
-        }
-    # assert config.config.get("data", {}).get("test", None) is not None
-    config["data"][args.mode]["batch_size"] = args.batch_size
-    config["data"][args.mode]["n_jobs"] = args.jobs
-    with multiprocessing.Pool() as pool:
-        main(args.output, args.mode, pool)
+    main()
