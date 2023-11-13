@@ -140,7 +140,7 @@ def create_mix(idx, triplet, snr_levels, out_dir, test=False, sr=16000, **kwargs
         path_target = os.path.join(out_dir, f"{str_snr}/{target_id}_{noise_id}_" + "%06d" % idx + "/target.wav")
         path_ref = os.path.join(out_dir, f"{str_snr}/{target_id}_{noise_id}_" + "%06d" % idx + "/ref.wav")
 
-        if not test:
+        if False:
             s1, s2, ref = vad_merge(s1, vad_db), vad_merge(s2, vad_db), vad_merge(ref, vad_db)
             s1_cut, s2_cut = cut_audios(s1, s2, audioLen, sr)
             ref_cut, _ = cut_audios(ref, ref, audioLen, sr)
@@ -311,7 +311,7 @@ def load_librispeech_dataset(dataset_name: str, nspeakers: int, nfiles: int, upd
             shutil.rmtree(str(data_dir / "LibriSpeech"))
 
         if update or not os.path.exists(ROOT_PATH / f"data/datasets/merge_librispeech/{dataset_name}"):
-            is_test = 'test' in dataset_name
+            is_test = ('test' in dataset_name) or ('val' in dataset_name)
             snr_levels = [-3, 0, 3] if not is_test else [0]
             create_dataset(dataset_name, nspeakers=nspeakers, nfiles=nfiles, test=is_test, num_workers=10,
                            snr_levels=snr_levels)
