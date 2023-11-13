@@ -15,7 +15,7 @@ from tqdm import tqdm
 from hw_asr.base import BaseTrainer
 from hw_asr.logger.utils import plot_spectrogram_to_buf
 from hw_asr.metric.utils import calc_cer, calc_wer
-from hw_asr.utils import inf_loop, MetricTracker
+from hw_asr.utils import inf_loop, MetricTracker, ROOT_PATH
 
 
 class Trainer(BaseTrainer):
@@ -166,6 +166,7 @@ class Trainer(BaseTrainer):
 
             for met in metric_iter:
                 metrics.update(met.name, met(**batch))
+
         return batch
 
     def _evaluation_epoch(self, epoch, part, dataloader):
@@ -198,6 +199,9 @@ class Trainer(BaseTrainer):
                             batch['ref'][0],
                             16000)
             self._log_scalars(self.evaluation_metrics)
+            if "val" in part:
+                torch.save(self.model.state_dict(), ROOT_PATH / f"outputs/{epoch}.pth")
+
             # self._log_predictions(is_validation=True, **batch)
             # self._log_spectrogram(batch["spectrogram"])
 

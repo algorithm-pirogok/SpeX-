@@ -1,8 +1,12 @@
 from abc import abstractmethod
+from datetime import datetime
+from pathlib import Path
 
 import torch
 from numpy import inf
 from hw_asr.utils import get_logger
+
+import os
 
 from hw_asr.base import BaseModel
 from hw_asr.logger import get_visualizer
@@ -23,6 +27,13 @@ class BaseTrainer:
         self._metrics_train = metrics_train
         self._metrics_test = metrics_test
         self.optimizer = optimizer
+
+        path = Path(self.config["trainer"]["save_dir"]) / "models" / config[
+            "name"] / datetime.now().strftime(r"%m%d_%H%M%S")
+
+        os.makedirs(path, exist_ok=True)
+
+        self.checkpoint_dir = path
 
         # for interrupt saving
         self._last_epoch = 0
@@ -70,6 +81,7 @@ class BaseTrainer:
             self._train_process()
         except KeyboardInterrupt as e:
             self.logger.info("Error: end of learning")
+            self._save_checkpoint(self._last_epoch, save_best=False)
             raise e
 
     def _train_process(self):
@@ -88,6 +100,34 @@ class BaseTrainer:
             for key, value in log.items():
                 self.logger.info("    {:15s}: {}".format(str(key), value))
 
+            if epoch % self.save_period == 0:
+                self._save_checkpoint(epoch)
+
+    def _save_checkpoint(self, epoch, save_best=False, only_best=False):
+        """
+        Saving checkpoints
+
+        :param epoch: current epoch number
+        :param save_best: if True, rename the saved checkpoint to 'checkpoint.pth'
+        """
+        arch = type(self.model).__name__
+        state = {
+            "arch": arch,
+            "epoch": epoch,
+            "state_dict": self.model.state_dict(),
+            "optimizer": self.optimizer.state_dict(),
+            "monitor_best": self.mnt_best,
+            "config": self.config,
+        }
+        filename = str(self.checkpoint_dir / "checkpoint-epoch{}.pth".format(epoch))
+        if not (only_best and save_best):
+            torch.save(state, filename)
+            self.logger.info("Saving checkpoint: {} ...".format(filename))
+        if save_best:
+            best_path = str(self.checkpoint_dir / "checkpoint.pth")
+            torch.save(state, best_path)
+            self.logger.info("Saving current best: checkpoint.pth ...")
+
     def _resume_checkpoint(self, resume_path):
         """
         Resume from saved checkpoints
@@ -97,6 +137,8 @@ class BaseTrainer:
         resume_path = str(resume_path)
         self.logger.info("Loading checkpoint: {} ...".format(resume_path))
         checkpoint = torch.load(resume_path, self.device)
+        print(checkpoint.keys())
+        print("state_dict" in checkpoint.keys())
         self.start_epoch = checkpoint["epoch"] + 1
         self.mnt_best = checkpoint["monitor_best"]
 

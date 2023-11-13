@@ -70,11 +70,13 @@ class MixedLibrispeechDataset(BaseDataset):
             snr = float(flac_dir.split('/')[-2])
             flac_dir = Path(flac_dir)
             mixed_info = torchaudio.info(str(flac_dir / "mixed.wav"))
+            ref_info = torchaudio.info(str(flac_dir / "ref.wav"))
             index.append(
                 {
                     "snr": snr,
                     "speaker_id": speaker_to_id[str(flac_dir).split('/')[-1].split('_')[0]],
                     "audio_len": mixed_info.num_frames / mixed_info.sample_rate,
+                    "ref_len": ref_info.num_frames / ref_info.sample_rate,
                     "mixed": str(flac_dir / "mixed.wav"),
                     "ref": str(flac_dir / "ref.wav"),
                     "target": str(flac_dir / "target.wav"),
@@ -82,7 +84,6 @@ class MixedLibrispeechDataset(BaseDataset):
                     "path": ""
                 }
             )
-        os.remove(split_dir / "speaker_to_id.json")
         return index
 
 

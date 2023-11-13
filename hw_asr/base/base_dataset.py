@@ -33,6 +33,7 @@ class BaseDataset(Dataset):
         return {
             "snr": data_dict['snr'],
             "audio_len": data_dict['audio_len'],
+            "ref_len": data_dict['ref_len'],
             "speaker_id": data_dict['speaker_id'],
             "mixed": self.load_audio(data_dict['mixed']),
             "ref": self.load_audio(data_dict['ref']),
