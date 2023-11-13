@@ -140,13 +140,9 @@ def create_mix(idx, triplet, snr_levels, out_dir, test=False, sr=16000, **kwargs
         path_target = os.path.join(out_dir, f"{str_snr}/{target_id}_{noise_id}_" + "%06d" % idx + "/target.wav")
         path_ref = os.path.join(out_dir, f"{str_snr}/{target_id}_{noise_id}_" + "%06d" % idx + "/ref.wav")
 
-        if False:
+        if not test:
             s1, s2, ref = vad_merge(s1, vad_db), vad_merge(s2, vad_db), vad_merge(ref, vad_db)
             s1_cut, s2_cut = cut_audios(s1, s2, audioLen, sr)
-            ref_cut, _ = cut_audios(ref, ref, audioLen, sr)
-            if not len(ref_cut):
-                return
-            ref_cut = ref_cut[0]
 
             for i in range(len(s1_cut)):
                 mix = snr_mixer(s1_cut[i], s2_cut[i], snr)
@@ -260,7 +256,7 @@ class MixtureGenerator:
 def create_dataset(dataset_name: str, nspeakers=100, nfiles: int = 100, test: bool = False,
                    num_workers: int = 2, snr_levels: list[int] = None):
     if snr_levels is None:
-        snr_levels = [0]
+        snr_levels =[0 , 5]
     path = ROOT_PATH / f"data/datasets/librispeech/{dataset_name}"
     path_mixtures = ROOT_PATH / f"data/datasets/mixed_librispeech/{dataset_name}"
 
@@ -312,7 +308,7 @@ def load_librispeech_dataset(dataset_name: str, nspeakers: int, nfiles: int, upd
 
         if update or not os.path.exists(ROOT_PATH / f"data/datasets/merge_librispeech/{dataset_name}"):
             is_test = ('test' in dataset_name) or ('val' in dataset_name)
-            snr_levels = [0] if not is_test else [0]
+            snr_levels = [0, 5] if not is_test else [0]
             create_dataset(dataset_name, nspeakers=nspeakers, nfiles=nfiles, test=is_test, num_workers=10,
                            snr_levels=snr_levels)
 
