@@ -12,16 +12,14 @@ val:
   datasets:
     - _target_: hw_asr.datasets.MixedLibrispeechDataset
       part: dev-clean
-      limit: 5
+      limit: 1
       sr: 16000
 
-#test:
-#  batch_size: 4
-#  num_workers: 8
-#  datasets:
-#    - type: MixedLibrispeechDataset
-#      args:
-#        part: test-clean
-#        max_audio_length: 20.0
-#        max_text_length: 200
-#        limit: 10
+test:
+  batch_size: 1
+  num_workers: 1
+  datasets:
+    - _target_: hw_asr.datasets.MixedLibrispeechDataset
+      part: test-clean
+      limit: 1
+      sr: 16000

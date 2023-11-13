@@ -6,37 +6,35 @@ import os
 from pathlib import Path
 
 import numpy as np
+import hydra
+from hydra.utils import instantiate
 import torch
 from tqdm import tqdm
 
-import hw_asr.model as module_mode
 from hw_asr.metric.utils import calc_cer, calc_wer
 import hw_asr.model as module_model
 from hw_asr.trainer import Trainer
-from hw_asr.utils import ROOT_PATH
+from hw_asr.utils import ROOT_PATH, get_logger
 from hw_asr.utils.object_loading import get_dataloaders
-from hw_asr.utils.parse_config import ConfigParser
 
 DEFAULT_CHECKPOINT_PATH = ROOT_PATH / "default_test_model" / "checkpoint.pth"
 
 
-def main(config, out_file, mode, pool):
+@hydra.main(config_path='hw_asr/configs', config_name='config')
+def main(clf, out_file, mode, pool):
     def _compute_metrics(target, pred):
         return calc_wer(target, pred), calc_cer(target, pred)
 
-    logger = config.get_logger("test")
+    logger = get_logger("test")
 
     # define cpu or gpu if possible
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # text_encoder
-    text_encoder = config.get_text_encoder()
-
     # setup data_loader instances
-    dataloaders = get_dataloaders(config, text_encoder)
+    dataloaders = get_dataloaders(config)
 
     # build model architecture
-    model = config.init_obj(config["arch"], module_model, n_class=len(text_encoder))
+    model = instantiate(config["arch"])
     logger.info(model)
 
     logger.info("Loading checkpoint: {} ...".format(config.resume))
@@ -202,4 +200,4 @@ if __name__ == "__main__":
     config["data"][args.mode]["batch_size"] = args.batch_size
     config["data"][args.mode]["n_jobs"] = args.jobs
     with multiprocessing.Pool() as pool:
-        main(config, args.output, args.mode, pool)
+        main(args.output, args.mode, pool)

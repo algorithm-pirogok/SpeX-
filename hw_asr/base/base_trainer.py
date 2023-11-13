@@ -100,8 +100,8 @@ class BaseTrainer:
             for key, value in log.items():
                 self.logger.info("    {:15s}: {}".format(str(key), value))
 
-            if epoch % self.save_period == 0:
-                self._save_checkpoint(epoch)
+            print(f"SELF MODEL for epoch={epoch}")
+            self._save_checkpoint(epoch)
 
     def _save_checkpoint(self, epoch, save_best=False, only_best=False):
         """
