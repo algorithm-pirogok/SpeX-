@@ -260,7 +260,7 @@ class MixtureGenerator:
 def create_dataset(dataset_name: str, nspeakers=100, nfiles: int = 100, test: bool = False,
                    num_workers: int = 2, snr_levels: list[int] = None):
     if snr_levels is None:
-        snr_levels = [-3, 0, 3]
+        snr_levels = [0]
     path = ROOT_PATH / f"data/datasets/librispeech/{dataset_name}"
     path_mixtures = ROOT_PATH / f"data/datasets/mixed_librispeech/{dataset_name}"
 
@@ -312,7 +312,7 @@ def load_librispeech_dataset(dataset_name: str, nspeakers: int, nfiles: int, upd
 
         if update or not os.path.exists(ROOT_PATH / f"data/datasets/merge_librispeech/{dataset_name}"):
             is_test = ('test' in dataset_name) or ('val' in dataset_name)
-            snr_levels = [-3, 0, 3] if not is_test else [0]
+            snr_levels = [0] if not is_test else [0]
             create_dataset(dataset_name, nspeakers=nspeakers, nfiles=nfiles, test=is_test, num_workers=10,
                            snr_levels=snr_levels)
 
