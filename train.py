@@ -25,7 +25,7 @@ torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
 
 
-@hydra.main(config_path='hw_asr/configs', config_name='one_batch_config')
+@hydra.main(config_path='hw_asr/configs', config_name='config')
 def main(clf: DictConfig):
     logger = get_logger("train")
     # setup data_loader instances
