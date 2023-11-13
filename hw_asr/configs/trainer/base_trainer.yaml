@@ -9,5 +9,5 @@ wandb_project: ss_homework
 wandb_name: model_improve
 wandb_entity: wandb_pirogok
 len_epoch: 1500
-batch_acum: 6
+batch_acum: 15
 grad_norm_clip: 10
